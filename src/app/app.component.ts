@@ -75,7 +75,8 @@ export class AppComponent implements OnInit{
     const results: Client[] = [];
     for(const client of this.clients){
       if (client.name.toLowerCase().indexOf(key.toLowerCase()) !== -1
-      || client.phoneno.toLowerCase().indexOf(key.toLowerCase()) !== -1){
+      || client.phoneno.toLowerCase().indexOf(key.toLowerCase()) !== -1
+      || client.address.toLowerCase().indexOf(key.toLowerCase()) !== -1){
         results.push(client);
       }
     }
