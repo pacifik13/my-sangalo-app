@@ -1,9 +1,10 @@
+<!--Header-->
 <nav class="navbar navbar-expand-lg navbar-darl bg-dark">
   <a class="navbar-brand" style="color:white;">MYSANGALO</a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor02">
     <span class="navbar-toggler-icon"></span>
   </button>
-  <div class="collapse navbar-collapse" id="navbarColor02">
+  <div *ngIf="isUserLoggedIn()" class="collapse navbar-collapse" id="navbarColor02">
     <ul class="navbar-nav mr-auto">
       <li class="nav-item-active">
         <a class="nav-link" style="color:white" (click)="onOpenModal(null, 'add')">Add Client <span class="sr-only">(current)</span></a>
@@ -13,9 +14,13 @@
       <input type="search" (ngModelChange)="searchClients(key.value)" #key="ngModel" ngModel
              name="key" id="searchName" class="form-control mr-sm-2" placeholder="Search something.." />
     </form>
+
+    <button (click)=logOut() class="btn btn-success">
+      Logout
+    </button>
   </div>
 </nav>
-<div class="container" id="main-container">
+<div *ngIf="isUserLoggedIn()" class="container" id="main-container">
   <div class="row">
     <div *ngFor="let client of clients" class="col-md-6 col-xl-3">
       <div class="card m-b-30">
@@ -166,4 +171,20 @@
     <h4 class="alert-heading">NOTHING HERE FAM</h4>
     <p>Nobody home.</p>
   </div>
+</div>
+
+
+<!--LogIn/Out-->
+<div *ngIf="!isUserLoggedIn()" class="container">
+  <div class="alert alert-info" role="alert">
+    <h4 class="alert-heading">WELCOME AMIGO</h4>
+    <br><br>
+    <div>
+      User Name : <input type="text" name="username" [(ngModel)]="username">
+      Password : <input type="password" name="password" [(ngModel)]="password">
+    </div>
+    <button (click)=checkLogin() class="btn btn-success">
+      Login
+    </button>
+</div>
 </div>

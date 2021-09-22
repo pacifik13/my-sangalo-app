@@ -1,8 +1,19 @@
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Client } from './client';
 import { ClientService } from './client.service';
+import { HttpClient } from '@angular/common/http';
+import { map } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
+
+
+export class User{
+  constructor(
+    public status:string,
+     ) {}
+  
+}
 
 @Component({
   selector: 'app-root',
@@ -13,11 +24,20 @@ export class AppComponent implements OnInit{
   public clients: Client[];
   public editClient: Client;
   public deleteClient: Client;
+  private apiServerurl = environment.apiBaseUrl;
 
-  constructor(private clientService: ClientService) { }
+  username = ''
+  password = ''
+  invalidLogin = false
+
+  constructor(
+    private clientService: ClientService,
+    private http: HttpClient
+    ) { }
 
   ngOnInit(){
-    this.getClients();
+    this.logOut();
+  //  this.getClients();
   }
   
   public getClients(): void {
@@ -36,11 +56,13 @@ export class AppComponent implements OnInit{
     this.clientService.addClient(addForm.value).subscribe(
       (response: Client) => {
         console.log(response);
+        alert("Client added successfully.");
         this.getClients();
         addForm.reset();
       },
       (error: HttpErrorResponse) =>{
         alert(error.message);
+        console.log("Yeha milena");
         addForm.reset();
       }
     );
@@ -50,6 +72,7 @@ export class AppComponent implements OnInit{
     this.clientService.updateClient(client).subscribe(
       (response: Client) => {
         console.log(response);
+        alert("Client updated successfully.");
         this.getClients();
       },
       (error: HttpErrorResponse) =>{
@@ -62,6 +85,7 @@ export class AppComponent implements OnInit{
     this.clientService.deleteClient(clientId).subscribe(
       (response: void) => {
         console.log(response);
+        alert("Client deleted successfully.");
         this.getClients();
       },
       (error: HttpErrorResponse) =>{
@@ -107,5 +131,46 @@ export class AppComponent implements OnInit{
     button.click();
   }
 
+//authenticate_service
+  public authenticate(username, password) {
+    const headers = new HttpHeaders({ Authorization: 'Basic ' + btoa(username + ':' + password) });
+    return this.http.get<User>(`${this.apiServerurl}/client/validateLogin`,{headers}).pipe(
+     map(
+       userData => {
+        sessionStorage.setItem('username',username);
+        let authString = 'Basic ' + btoa(username + ':' + password);
+          sessionStorage.setItem('basicauth', authString);
+        return userData;
+       }
+     )
+
+    );
+  }
+
+  public isUserLoggedIn() {
+    let user = sessionStorage.getItem('username')
+    console.log(!(user === null))
+    return !(user === null)
+  }
+
+  public logOut() {
+    sessionStorage.removeItem('username')
+  }
+
+//login_service
+checkLogin() {
+  (this.authenticate(this.username, this.password).subscribe(
+    data => {
+      this.getClients();
+      this.invalidLogin = false
+    },
+    error => {
+      this.invalidLogin = true
+
+    }
+  )
+  );
+
+}
 
 }
